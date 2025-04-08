@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Praticien</title>
+
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD1rxrOqujyTehBCmTXf3ey9ZV_2AlO5jQ",
+      authDomain: "dentiste-6f7e0.firebaseapp.com",
+      projectId: "dentiste-6f7e0",
+      storageBucket: "dentiste-6f7e0.firebasestorage.app",
+      messagingSenderId: "1049364021560",
+      appId: "1:1049364021560:web:8bc62eceeee8b800fdc1cd",
+      measurementId: "G-GVZKX3XCPP"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const loginForm = document.getElementById("login-form");
+    const registerForm = document.getElementById("register-form");
+    const dashboard = document.getElementById("dashboard");
+
+    document.getElementById("to-register").onclick = () => {
+      loginForm.style.display = "none";
+      registerForm.style.display = "flex";
+    };
+
+    document.getElementById("to-login").onclick = () => {
+      registerForm.style.display = "none";
+      loginForm.style.display = "flex";
+    };
+
+    document.getElementById("register-btn").onclick = async () => {
+      const email = document.getElementById("register-email").value;
+      const password = document.getElementById("register-password").value;
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await setDoc(doc(db, "users", userCredential.user.uid), {
+          email: email,
+          vues: 0,
+          clics_rdv: 0,
+          clics_share: 0,
+          clics_save: 0
+        });
+        alert("Compte créé. Vous êtes connecté.");
+      } catch (error) {
+        alert("Erreur inscription : " + error.message);
+      }
+    };
+
+    document.getElementById("login-btn").onclick = async () => {
+      const email = document.getElementById("login-email").value;
+      const password = document.getElementById("login-password").value;
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (error) {
+        alert("Erreur de connexion : " + error.message);
+      }
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        loginForm.style.display = "none";
+        registerForm.style.display = "none";
+        dashboard.style.display = "flex";
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          document.getElementById("email").textContent = data.email;
+          document.getElementById("vues").textContent = data.vues;
+          document.getElementById("rdv").textContent = data.clics_rdv;
+          document.getElementById("share").textContent = data.clics_share;
+          document.getElementById("save").textContent = data.clics_save;
+        }
+      }
+    });
+  </script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f9ff;
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h2 {
+      color: #007acc;
+      margin-bottom: 20px;
+    }
+
+    form, #dashboard {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 400px;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    input {
+      margin: 10px 0;
+      padding: 10px;
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background: #007acc;
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #005fa3;
+    }
+
+    .stat {
+      background: #f5faff;
+      margin: 10px;
+      padding: 10px;
+      width: 100%;
+      text-align: center;
+      border-radius: 10px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <form id="login-form">
+    <h2>Connexion Praticien</h2>
+    <input type="email" id="login-email" placeholder="Email">
+    <input type="password" id="login-password" placeholder="Mot de passe">
+    <button type="button" id="login-btn">Se connecter</button>
+    <button type="button" id="to-register">Créer un compte</button>
+  </form>
+
+  <form id="register-form">
+    <h2>Créer un compte</h2>
+    <input type="email" id="register-email" placeholder="Email">
+    <input type="password" id="register-password" placeholder="Mot de passe">
+    <button type="button" id="register-btn">S'inscrire</button>
+    <button type="button" id="to-login">Déjà inscrit ? Connexion</button>
+  </form>
+
+  <div id="dashboard">
+    <h2>📊 Dashboard de <span id="email">Utilisateur</span></h2>
+    <div class="stat">👀 Vues : <strong id="vues">0</strong></div>
+    <div class="stat">📅 Clics RDV : <strong id="rdv">0</strong></div>
+    <div class="stat">🔗 Partages : <strong id="share">0</strong></div>
+    <div class="stat">💾 Enregistrements : <strong id="save">0</strong></div>
+  </div>
+</body>
+</html>

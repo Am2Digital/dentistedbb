@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Mobile - Carte Santé+</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD1rxrOqujyTehBCmTXf3ey9ZV_2AlO5jQ",
+      authDomain: "dentiste-6f7e0.firebaseapp.com",
+      projectId: "dentiste-6f7e0",
+      storageBucket: "dentiste-6f7e0.firebasestorage.app",
+      messagingSenderId: "1049364021560",
+      appId: "1:1049364021560:web:8bc62eceeee8b800fdc1cd",
+      measurementId: "G-GVZKX3XCPP"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function fetchStats() {
+      const docRef = doc(db, "stats", "carte-yris");
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        document.getElementById('vues').textContent = data.vues || 0;
+        document.getElementById('rdv').textContent = data.clics_rdv || 0;
+        document.getElementById('share').textContent = data.clics_share || 0;
+        document.getElementById('save').textContent = data.clics_save || 0;
+      } else {
+        alert("Aucune donnée trouvée.");
+      }
+    }
+
+    function checkPassword() {
+      const input = document.getElementById('password').value;
+      const authSection = document.getElementById('auth');
+      const dashboardSection = document.getElementById('dashboard');
+      if (input === "am2tech") {
+        authSection.style.display = "none";
+        dashboardSection.style.display = "flex";
+        fetchStats();
+      } else {
+        alert("Mot de passe incorrect.");
+      }
+    }
+
+    window.checkPassword = checkPassword;
+  </script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f9ff;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+    }
+
+    h1 {
+      color: #007acc;
+      font-size: 22px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .stat {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 15px;
+      margin: 10px 0;
+      width: 90%;
+      max-width: 320px;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    #dashboard {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    input[type="password"] {
+      padding: 10px;
+      font-size: 16px;
+      margin: 20px auto;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      display: block;
+      width: 80%;
+      max-width: 300px;
+    }
+
+    button {
+      background: #007acc;
+      color: white;
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #005fa3;
+    }
+
+    #auth {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="auth">
+    <h1>🔐 Accès sécurisé</h1>
+    <input type="password" id="password" placeholder="Mot de passe">
+    <button onclick="checkPassword()">Accéder au dashboard</button>
+  </div>
+
+  <div id="dashboard">
+    <h1>📊 Stats Carte Santé+</h1>
+    <div class="stat">👀 Vues : <strong id="vues">0</strong></div>
+    <div class="stat">📅 Clics RDV : <strong id="rdv">0</strong></div>
+    <div class="stat">🔗 Partages : <strong id="share">0</strong></div>
+    <div class="stat">💾 Enregistrements : <strong id="save">0</strong></div>
+  </div>
+</body>
+</html>

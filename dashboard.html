@@ -69,7 +69,7 @@
       apiKey: "AIzaSyD1rxrOqujyTehBCmTXf3ey9ZV_2AlO5jQ",
       authDomain: "dentiste-6f7e0.firebaseapp.com",
       projectId: "dentiste-6f7e0",
-      storageBucket: "dentiste-6f7e0.firebasestorage.app",
+      storageBucket: "dentiste-6f7e0.appspot.com",
       messagingSenderId: "1049364021560",
       appId: "1:1049364021560:web:8bc62eceeee8b800fdc1cd"
     };
@@ -149,31 +149,19 @@
         telephone: document.getElementById("telephone").value,
         photo: document.getElementById("photo").value
       };
-      db.collection("profils").doc(id).set(infos).then(() => {
+      db.collection("profils").doc(id).set(infos, { merge: true }).then(() => {
         document.getElementById("save-toast").style.display = "block";
         setTimeout(() => document.getElementById("save-toast").style.display = "none", 3000);
       });
     }
 
     function genererRedirection() {
-  const nom = document.getElementById('redirect-nom').value.trim();
-  const id = document.getElementById('redirect-id').value.trim();
-  if (!nom || !id) return alert("Champs manquants");
-
-  const html = '<!DOCTYPE html>\n' +
-  '<html>\n' +
-  '  <head>\n' +
-  `    <meta http-equiv="refresh" content="0;url=/fiche.html?id=${id}">\n` +
-  '    <meta charset="UTF-8">\n' +
-  `    <title>Redirection ${nom}</title>\n` +
-  '  </head>\n' +
-  '  <body>\n' +
-  `    <p>Redirection... <a href="/fiche.html?id=${id}">Cliquez ici</a></p>\n` +
-  '  <\\/body>\n' +  // protégé
-  '<\\/html>';       // protégé
-
-document.getElementById("redirect-output").value = html;
-}
+      const nom = document.getElementById('redirect-nom').value.trim();
+      const id = document.getElementById('redirect-id').value.trim();
+      if (!nom || !id) return alert("Champs manquants");
+      const html = `<!DOCTYPE html>\n<html>\n  <head>\n    <meta http-equiv='refresh' content='0;url=/fiche.html?id=${id}'>\n    <meta charset='UTF-8'>\n    <title>Redirection ${nom}</title>\n  </head>\n  <body>\n    <p>Redirection... <a href='/fiche.html?id=${id}'>Cliquez ici</a></p>\n  </body>\n</html>`;
+      document.getElementById("redirect-output").value = html;
+    }
   </script>
 </body>
 </html>
